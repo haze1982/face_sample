@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>facetest</title>
+<meta name="Description" content="" />
+<meta name="Keywords"  content="" />
+
+<link rel="stylesheet" type="text/css" media="screen,print" href="/static/css/style.css" />
+</head>
+<body>
+<html>
+<head> 
+   
+    <script type="text/javascript">
+
+        var MATH={
+                 LEFT :Math.PI,
+                RIGHT :2*Math.PI,
+                 DOWN :Math.PI/2,
+                   UP : Math.PI/2*3,
+                 DIST :function(a,b){return Math.sqrt( (b.x-a.x)*(b.x-a.x) + (b.y-a.y)*(b.y-a.y) )},
+                ANGLE :function(a,b){return Math.atan2(b.x-a.x , b.y-a.y)},
+                RANDOMintAtoB:function(a,b){ return Math.floor( Math.random() * (b-a + 1) )+a  },
+                RANDOMfloatAtoB:function(a,b){ return  Math.random() * (b-a + 1)+ a  },
+                AREAcircle:function(radius){return Math.PI*(radius*radius)},
+                CIRCUMcircle:function(radius){return 2*Math.PI*radius},
+                VOLUMEsphere:function(radius){return (4*Math.PI*(radius*radius*radius))/3},
+                AREAsphere:function(radius){return 4*Math.PI*(radius*radius)},
+                moveXYbyRADIAN:function(P,angle,distance){ P.x+=Math.cos(angle)*distance; P.y+=Math.sin(angle)*distance},
+                moveXYbyANGLE :function(P,angle,distance){ P.x+=Math.cos(angle/360*(2*Math.PI))*distance; P.y+=Math.sin(angle/360*(2*Math.PI))*distance},
+                returnXYbyANGLE: function (P, angle, distance) {var O={x:0,y:0};O.x= P.x + Math.cos(angle / 360 * (2 * Math.PI)) * distance; O.y = P.y + Math.sin(angle / 360 * (2 * Math.PI)) * distance;return O }
+        }
+
+
+        var MOUSE={x:0,y:0}
+        var eyepos={x:0,y:0}
+        var $CS=function(G,a,color){return G.addColorStop(a,color)}
+        
+        onload = function () {
+                window.canvas = document.getElementById("canvas_test");
+                ctx = canvas.getContext("2d");
+
+                document.onmousemove=function(e){
+                     e=!e?window.event:e;
+                     MOUSE={x:e.pageX||e.clientX,y:e.pageY||e.clientY}
+                }
+
+                ColorstopsFace={    A:[
+                    'rgb(245, 245, 245)',
+                    'rgb(145, 145, 145)',
+                    'rgb(45, 45, 45)'    
+                    ],
+                    B:[
+                    'rgb(255, 255, 255)',
+                    'rgb(250, 250, 250)',
+                    'rgb(245, 245, 245)'
+                    ]
+                }
+                
+             draw1();
+       };
+
+
+
+        function face(x,y,r,xx,yy,rr,CS){
+            var G = ctx.createLinearGradient(x, y-(3*r/2), x, y+(3*r/2)); $CS(G, 0,  CS.A[0]); $CS(G, 0.3,CS.A[1]); $CS(G, 1,  CS.A[2]);
+            ctx.save();ctx.scale(1.1,1);ctx.beginPath();ctx.arc(x*.89, y, r, 0 , 2 * Math.PI , true);ctx.fillStyle = G;ctx.fill();ctx.restore();
+            var g = ctx.createLinearGradient(xx, yy-(3*r/2), xx, yy+(3*r/2)); $CS(g, 0,   CS.B[0]); $CS(g, 0.3, CS.B[1]); $CS(g, 1,   CS.B[2]);
+            ctx.save();ctx.scale(1,1);ctx.beginPath();ctx.arc(xx, yy, rr, 0, 2*Math.PI , true);ctx.fillStyle = g;ctx.fill();ctx.restore()
+        }
+
+        function eye(x,y,r,xx,yy,rr){
+            ctx.save();ctx.beginPath();ctx.arc(x, y, r, 0, 360 * Math.PI / 180, false);ctx.fillStyle = 'rgb(255, 255, 255)';ctx.fill();ctx.stroke();ctx.restore()
+            ctx.save();ctx.beginPath();ctx.arc(xx, yy, rr, 0, 360 * Math.PI / 180, false);ctx.fillStyle = 'rgb(0, 0, 0)';ctx.fill();ctx.stroke();ctx.restore()
+        }
+            function mouth(x,y,w,top,bot,color1,color2,lipW){
+                 ctx.beginPath();
+
+        ctx.lineWidth=lipW
+        ctx.lineJoin="round"
+
+        /*
+        ctx.bezierCurveTo(x,y, x+w/2,y+top,x+w,y);
+        ctx.bezierCurveTo(x+w, y, x,y+bot,x-w,y);
+        ctx.bezierCurveTo(x-w,y, x-w/2,y+top,x ,y);
+        */
+        
+        ctx.bezierCurveTo(x-w, y, x,y+top,x+w,y);
+        ctx.bezierCurveTo(x+w, y, x,y+bot,x-w,y);
+                 ctx.strokeStyle=color1
+                  ctx.fillStyle =color2;
+                  ctx.fill();
+                  ctx.stroke();
+        }
+        
+        function nose(x,y,r,color,color2){
+            ctx.save();ctx.beginPath();ctx.arc(x, y, r, 0, 360 * Math.PI / 180, false);ctx.fillStyle=color;ctx.fill();ctx.stroke();ctx.restore()
+            ctx.save();ctx.beginPath();ctx.arc(x-r/3, y-r/3, r/3, 0, 360 * Math.PI / 180, false);ctx.fillStyle = color2;ctx.fill();ctx.restore()
+            ctx.save();ctx.beginPath();ctx.moveTo(x, y+r/1.6);ctx.lineTo(x, y+r-2);ctx.closePath();ctx.stroke();ctx.restore()
+        }
+
+           
+        function draw1(){
+            ctx.clearRect(0,0,canvas.width,canvas.height)     
+
+            var facecenter={x:200,y:100}
+            var angle=MATH.ANGLE(facecenter,MOUSE)
+            var facex=Math.sin(angle)*2
+            var facey=Math.cos(angle)*2
+
+            face(200-facex,100,80,200-facex,120,65,ColorstopsFace)
+
+            ctx.save()
+            ctx.scale(1,1.35)
+            ctx.lineWidth=.1
+            var eyecenter={x:170,y:60}
+            var angle=MATH.ANGLE(eyecenter,MOUSE)
+            var eyex=Math.sin(angle)*10
+            var eyey=Math.cos(angle)*10
+            eye(170+eyex/8,60+eyey/8,20,170+eyex,60+eyey,5)
+
+            var eyecenter={x:230,y:60}
+            var angle=MATH.ANGLE(eyecenter,MOUSE)
+            var eyex=Math.sin(angle)*10
+            var eyey=Math.cos(angle)*10
+            eye(230+eyex/8,60+eyey/8,20,230+eyex,60+eyey,5)
+
+            ctx.restore()
+
+            ctx.save()
+
+            mouth(200+eyex/8,135+eyey/8,50,-20,80,"rgba(255,0,0,1)","rbga(0,0,0,1)",5)
+            ctx.restore()
+               
+            ctx.save()
+            ctx.lineWidth=.8
+
+            nose(200+eyex/8,100+eyey/8,21,"rgba(215,0,0,1)","rgba(255,255,255,.8)")
+
+            ctx.restore()    
+            setTimeout(draw1,100) 
+       }
+    </script> 
+</head> 
+<body> 
+   <h1>Canvas</h1>
+   <canvas id="canvas_test" width="400" height="400"></canvas>
+
+</body>
+</html>
+
+</body>
+</html>
